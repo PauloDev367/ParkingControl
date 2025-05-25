@@ -1,19 +1,12 @@
-using MediatR;
 using ParkingControl.Application;
-using Microsoft.OpenApi.Models;
+using ParkingControl.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.ConfigureApplicationDbContext(builder.Configuration);
+builder.Services.ConfigureSwagger();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "Parking Control API",
-        Version = "v1",
-        Description = "API for Parking Management System"
-    });
-});
+
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(AssemblyReference).Assembly)
@@ -31,6 +24,8 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Parking Control API V1");
     });
 }
+
+app.MapGet("/api/v1", () => { Results.Ok("API is running"); });
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
