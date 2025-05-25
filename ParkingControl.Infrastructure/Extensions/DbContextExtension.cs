@@ -8,14 +8,21 @@ namespace ParkingControl.Infrastructure.Extensions;
 
 public static class DbContextExtension
 {
-    public static void ConfigureApplicationDbContext(this IServiceCollection service, IConfiguration configuration)
+    public static IServiceCollection ConfigureApplicationDbContext(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         var connString = configuration.GetConnectionString("SqlServer")
             ?? throw new InvalidOperationException("Db context was not configurated");
-     
-        service.AddDbContext<ParkingDbContext>(conf =>
+
+        services.AddDbContext<ParkingDbContext>(options =>
         {
-            conf.UseSqlServer(connString);
+            options.UseSqlServer(connString, sql =>
+            {
+                sql.MigrationsAssembly(typeof(ParkingDbContext).Assembly.FullName);
+            });
         });
+
+        return services;
     }
 }
